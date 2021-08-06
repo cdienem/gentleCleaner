@@ -1,6 +1,8 @@
 # gentleCleaner
 A Python implementation of Relions gentle clean method.
 
+Beware: some job types have not been tested (because they are not used here). Bug reports welcome :D
+
 Usage:
 
 
