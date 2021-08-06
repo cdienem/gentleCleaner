@@ -35,8 +35,10 @@ def readRelionProjectJobs(location):
 					break
 				else:
 					# Only append jobs with status == 2 (finished successfully)
-					if int(line.split()[3]) == 2:
+					# Also check whether job directories exist
+					if line.split()[3] == "2" and os.path.isdir(join(location,line.split()[0])):
 						jobs.append(line.split()[0])
+	print(jobs)
 	return(jobs)
 
 def readRelionProjectNodes(location):
@@ -87,7 +89,7 @@ def cleanRelionJobFiles(location, job, harsh=False, dry=True, absolute=True):
 	
 	
 	if job_type == "MotionCorr":
-			if mode == "harsh":
+			if harsh:
 				# Just add all subfolders to the list
 				delete_files.extend([d for d in os.listdir(join(location,job)) if os.path.isdir(d)])
 			else:
@@ -101,8 +103,8 @@ def cleanRelionJobFiles(location, job, harsh=False, dry=True, absolute=True):
 
 	elif job_type == "CtfFind":
 		files = os.listdir(join(location,job))
-		delete_files.extend([join(root,f) for f in files if re.match('gctf.*\.out', f) != None])
-		delete_files.extend([join(root,f) for f in files if re.match('gctf.*\.err', f) != None])
+		delete_files.extend([join(location,job,f) for f in files if re.match('gctf.*\.out', f) != None])
+		delete_files.extend([join(location,job,f) for f in files if re.match('gctf.*\.err', f) != None])
 		# Remove entire subdirectoriy structure
 		delete_files.extend([d for d in os.listdir(join(location,job)) if os.path.isdir(d)])
 
@@ -113,7 +115,7 @@ def cleanRelionJobFiles(location, job, harsh=False, dry=True, absolute=True):
 
 
 	elif job_type == "Extract":
-		if mode == "harsh":
+		if harsh:
 			# Just add all subfolders to the list
 			delete_files.extend([d for d in os.listdir(join(location,job)) if os.path.isdir(d)])
 		else:
@@ -174,14 +176,14 @@ def cleanRelionJobFiles(location, job, harsh=False, dry=True, absolute=True):
 				delete_files.extend([join(root,f) for f in files if re.match('.*_FCC_cc\.mrc', f) != None])
 				delete_files.extend([join(root,f) for f in files if re.match('.*_FCC_w0\.mrc', f) != None])
 				delete_files.extend([join(root,f) for f in files if re.match('.*_FCC_w1\.mrc', f) != None])
-				if mode == "harsh":
+				if harsh:
 					delete_files.extend([join(root,f) for f in files if re.match('.*_shiny\.mrcs', f) != None])
 					delete_files.extend([join(root,f) for f in files if re.match('.*_shiny\.star', f) != None])
 
 	elif job_type == "Subtract":
-		if mode == "harsh":
+		if harsh:
 			files = os.listdir(join(location,job))
-			delete_files.extend([join(root,f) for f in files if re.match('subtracted\..*', f) != None])
+			delete_files.extend([join(location,job,f) for f in files if re.match('subtracted\..*', f) != None])
 
 	elif job_type == "PostProcess":
 		files = sorted(os.listdir(join(location,job)))
